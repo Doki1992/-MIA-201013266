@@ -31,6 +31,8 @@
 		<Compiler>
 			<Add option="-Wall" />
 		</Compiler>
+		<Unit filename="Automata.h" />
+		<Unit filename="instruccion.h" />
 		<Unit filename="main.c">
 			<Option compilerVar="CC" />
 		</Unit>
