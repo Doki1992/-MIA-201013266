@@ -44,6 +44,7 @@ void leer(char buffer[], char *path);
 void crear_instruccion(obj ver[]);
 void iniciar_obj();
 void crear_mkd(obj ver [],int tam);
+void crear_mrd(obj ver[], int tam );
 
 void lexer(char buffer [] ){
     int  i =0;
@@ -291,8 +292,36 @@ void crear_instruccion(obj ver[]){
                 crear_mkd(ver ,5);
                 break;
             }
+            if(strcmp(objetos[i].clave,"rmdisk")==0){
+                crear_mrd(ver,2);
+                break;
+            }
+            if(strcmp(objetos[i].clave,"fdisk")==0){
+
+            }
         }
     }
+
+}
+
+void crear_mrd(obj ver[], int tam){
+    int  i;
+    ptrddisk di = (ptrddisk)malloc(sizeof(ddisk));
+    strcpy(di->path,"vacio");
+    for(i=0;i<tam;i++){
+        if(strcmp(ver[i].clave,"-path")==0){
+            set_path_delete_disk(ver[i].valor,&di);
+        }
+    }
+    if(strcmp(di->path,"vacio")==0){
+        INSTRUTION_STATE=1;
+        printf("Muy pocos parametros para instruccion mrdisk (path) son obligatorios\n");
+        return ;
+    }
+
+    printf("Se ha eliminado el disco ");
+    printf("%s\n",di->path);
+    insertar(&primero,di,&ultimo,"mr");
 
 }
 

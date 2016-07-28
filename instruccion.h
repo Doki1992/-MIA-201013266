@@ -10,6 +10,21 @@ char path [200];
 char name [200];
 };
 
+struct rmdisk{
+   char path [200];
+};
+
+struct fdisk{
+    int sise;
+    char unit;
+    char path[200];
+
+};
+
+typedef struct fdisk fd;
+typedef struct fdisk *ptrfd;
+typedef struct rmdisk ddisk;
+typedef struct rmdisk *ptrddisk;
 typedef struct mkdisk   disk;
 typedef struct mkdisk * ptrdisk;
 
@@ -44,11 +59,28 @@ void set_unit(char unit, disk ** disco){
 
 void set_path(char path[], disk ** disco){
     char * exe = (char*)calloc(400,sizeof(char));
-    strcat(exe,"mkdir -p ");
+    if((int)path[0]==(int)'/'){
+        strcat(exe,"mike");
+    }else{
+        strcat(exe,"mike/");
+    }
     strcat(exe,path);
+
     strcpy((*disco)->path,exe);
 }
 
 void set_name(char name[],disk ** disco){
     strcpy((*disco)->name,name);
+}
+
+void set_path_delete_disk(char path[], ddisk ** disco){
+    char * exe = (char*)malloc(sizeof(char));
+    if((int)path[0]==(int)'/'){
+        strcat(exe,"mike");
+    }else{
+        strcat(exe,"mike/");
+    }
+    strcat(exe,path);
+
+    strcpy((*disco)->path,exe);
 }

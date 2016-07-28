@@ -1,0 +1,81 @@
+#ifndef EJECUTAR
+#define EJECUTAR
+#include "Automata.h"
+#include "estructuras.h"
+char*itoa(int i, char b[]);
+void eliminaDisco(ptrddisk di);
+void ejecutar(){
+    ptrnodo aux = primero;
+    while(aux!=NULL){
+        if(strcmp(aux->tipo,"mk")==0){
+            creaDisco(aux->mk);
+        }else if(strcmp(aux->tipo,"mr")==0){
+            eliminaDisco(aux->mr);
+        }
+        aux=aux->sig;
+    }
+
+}
+
+
+void creaDisco(ptrdisk di){
+    char exe [500]={};
+    char size_m [500]={};
+    char exe1[500]={};
+    strcat(exe1,"mkdir -p ");
+    strcat(exe1,di->path);
+    system(exe1);
+    strcpy(size_m,itoa(di->sise,size_m));
+    strcat(exe,"dd if=/dev/zero of=");
+    strcat(exe,di->path);
+    strcat(exe,di->name);
+    strcat(exe," ");
+    strcat(exe," bs=");
+    strcat(exe,size_m);
+    strcat(exe," count=1");
+    system(exe);
+    char cad [500]={};
+    strcat(cad,di->path);
+    strcat(cad,di->name);
+    crearMBR(di->sise,cad);
+    strcat(di->path,di->name);
+    impimeMBR(di->path);
+}
+
+void eliminaDisco(ptrddisk di){
+    printf("Desea borrar el disco con direccion: ");
+    printf(di->path);
+    printf("  ");
+    printf("s/n\n");
+    char *con = (char*)malloc(sizeof(char));
+    fgets(con,10,stdin);
+    if(strcmp(con,"s\n")==0){
+        char exe [500]={};
+        strcat(exe,"rm ");
+        strcat(exe,di->path);
+        system(exe);
+    }
+}
+
+char* itoa(int i, char b[]){
+    char const digit[] = "0123456789";
+    char* p = b;
+    if(i<0){
+        *p++ = '-';
+        i *= -1;
+    }
+    int shifter = i;
+    do{ //Move to where representation ends
+        ++p;
+        shifter = shifter/10;
+    }while(shifter);
+    *p = '\0';
+    do{ //Move back, inserting digits as u go
+        *--p = digit[i%10];
+        i = i/10;
+    }while(i);
+    return b;
+}
+
+#endif // EJECUTAR
+

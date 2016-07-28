@@ -4,6 +4,7 @@
 struct Nodo{
     char tipo [40];
     disk * mk;
+    ddisk *mr;
     struct Nodo * sig;
 };
 
@@ -40,16 +41,33 @@ void insertar(ptrnodo *primero, void *generico, ptrnodo* ultimo,char * tipo){
     }
 }
 
+void eliminar_instruccion(){
+    if(primero!=NULL){
+        ptrnodo aux = primero;
+        primero=primero->sig;
+        free(aux);
+        tam--;
+    }
+}
+
 void iniciar(ptrnodo *This, void *generico, char * tipo){
     strcpy((*This)->tipo,tipo);
     if(strcmp(tipo,"mk")==0){
         disk * mk = (disk*)generico;
         iniciar_mk(This,mk);
+    }else if(strcmp(tipo,"mr")==0){
+        ddisk *mr = (ddisk*)generico;
+        iniciar_mr(This,mr);
     }else{
         printf("Error instruccion no soportada instrucciones.h");
-        printf(" linea 49");
+        printf(" linea 63");
         INSTRUTION_STATE=1;
     }
+}
+
+void iniciar_mr(ptrnodo* This,ddisk *mr){
+    (*This)->mr=(ptrddisk)malloc(sizeof(ddisk));
+    strcpy((*This)->mr->path,mr->path);
 }
 
 void iniciar_mk(ptrnodo *This, disk *mk){

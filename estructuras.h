@@ -89,16 +89,13 @@ void crearMBR(int size_disco,char*path){
     }else{
         printf("no se puede abrir el archivo");
     }
-
-
 }
 //agregar el mètodo acturalizar mbr
 mbr leerMBR(char path[]){
-    FILE* ptrfile;
-    ptrfile = fopen(path,"rb");
+    FILE* ptrfile = fopen(path,"rb");
     mbr c ={0,"",0,0,0,0};
     if(ptrfile!=NULL){
-        fseek(ptrfile,0*sizeof(mbr),SEEK_SET);
+        fseek(ptrfile,0,SEEK_SET);
         fread(&c,sizeof(mbr),1,ptrfile);
     }else{
       printf("an error has ocurred");
@@ -106,7 +103,6 @@ mbr leerMBR(char path[]){
       printf("\n");
       return c;
     }
-    fclose(ptrfile);
     return c;
 }
 
@@ -133,8 +129,8 @@ void impimeMBR(char*path){
       printf("%-10c%-10c%-10c%-10s%-10d%-10d\n",c.part2.fit,c.part2.estado,c.part2.tipo,c.part2.name,c.part2.size,c.part2.start);
       printf("%-10c%-10c%-10c%-10s%-10d%-10d\n",c.part3.fit,c.part3.estado,c.part3.tipo,c.part3.name,c.part3.size,c.part3.start);
       printf("%-10c%-10c%-10c%-10s%-10d%-10d\n",c.part4.fit,c.part4.estado,c.part4.tipo,c.part4.name,c.part4.size,c.part4.start);
-      printf("%d\n",sizeof(mbr));
   }
+
   fclose(ptrfile);
   }else{
        printf("no se puede abri ese disco, no existe\n");
@@ -243,7 +239,7 @@ void crearParticionNormal(char status, char type, char fit  , int size,char * na
                 m.part1.fit=fit;
                 strcpy(m.part1.name,name);
                 m.part1.size=size;
-                m.part1.start=220;
+                m.part1.start=sizeof(mbr);
                 m.part1.tipo=type;
                 if((int)type==(int)'e'){
                     creaEBR(path,m.part1.start);
@@ -256,7 +252,7 @@ void crearParticionNormal(char status, char type, char fit  , int size,char * na
                 m.part2.fit=fit;
                 strcpy(m.part2.name,name);
                 m.part2.size=size;
-                m.part2.start=220+m.part1.size;
+                m.part2.start=sizeof(mbr)+m.part1.size;
                 m.part2.tipo=type;
                 if((int)type==(int)'e'){
                     creaEBR(path,m.part2.start);
@@ -268,7 +264,7 @@ void crearParticionNormal(char status, char type, char fit  , int size,char * na
                 m.part3.fit=fit;
                 strcpy(m.part3.name,name);
                 m.part3.size=size;
-                m.part3.start=220+m.part1.size+m.part2.size;
+                m.part3.start=sizeof(mbr)+m.part1.size+m.part2.size;
                 m.part3.tipo=type;
                 if((int)type==(int)'e'){
                     creaEBR(path,m.part3.start);
@@ -280,7 +276,7 @@ void crearParticionNormal(char status, char type, char fit  , int size,char * na
                 m.part4.fit=fit;
                 strcpy(m.part4.name,name);
                 m.part4.size=size;
-                m.part4.start=220+m.part1.size+m.part2.size+m.part3.size;
+                m.part4.start=sizeof(mbr)+m.part1.size+m.part2.size+m.part3.size;
                 m.part4.tipo=type;
                 if((int)type==(int)'e'){
                     creaEBR(path,m.part4.start);
