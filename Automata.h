@@ -23,8 +23,8 @@ static char letras [] = {'a','b','c','d','e','f','g',
                   ,'V','W','X','Y','Z'};
 
 static char * palabras [] = {"mkdisk","rmdisk","fdisk","mount","unmount","-size","exec",
-                             "+unit","-path","-id","-type","-fit","-delete","-name","loss",
-                             "-add","rep","mkfs","mkfile","cat","rem","edit","ren","-p",
+                             "+unit","-path","-id","+type","+fit","+delete","-name","loss",
+                             "+add","rep","mkfs","mkfile","cat","rem","edit","ren","-p",
                              "mkdir","cp","mv","find","-cont","-p","-dest","-iddest","recovery"};
 
 static int numeros [] = {'0','1','2','3','4','5','6','7','8','9'};
@@ -45,6 +45,7 @@ void crear_instruccion(obj ver[]);
 void iniciar_obj();
 void crear_mkd(obj ver [],int tam);
 void crear_mrd(obj ver[], int tam );
+void crear_fd(obj ver [],int tam);
 
 void lexer(char buffer [] ){
     int  i =0;
@@ -61,13 +62,14 @@ void lexer(char buffer [] ){
     while(i<tamano){
         switch(ESTADO){
         case 0:
-            if((int)(buffer[i])==salto_linea&&flag==0){
+            if(((int)(buffer[i])==salto_linea||(int)buffer[i]==(int)'|')&&flag==0){
                 strcpy(objetos[pos_obj++].valor,dato);
                 pos_vector=0;
                 ESTADO=0;
                 limpiar_vector(dato);
                 crear_instruccion(objetos);
                 if(INSTRUTION_STATE==1){
+                    printf("ha ocurrido un error faltal, codigo de sálida 1, corrija los errores e intente de nuevo\n");
                     return;
                 }
                 flag=1;
@@ -79,7 +81,7 @@ void lexer(char buffer [] ){
                 dato[pos_vector++]=buffer[i];
                 ESTADO=1;
             }else if((int)buffer[i]==comentario){
-                //ESTADO =?;
+                ESTADO=5;
             }else if((int)buffer[i]==(int)'/'){
                 ESTADO=0;
             }else if((int)buffer[i]==(int)'.'){
@@ -91,7 +93,6 @@ void lexer(char buffer [] ){
             }else if((int)buffer[i]==(int)'|'){
 
             }
-
             break;
         case 1:
             if((int)(buffer[i])==espacio_blanco){
@@ -146,11 +147,15 @@ void lexer(char buffer [] ){
                 printf("Error muy pocos argumentos\n");
                 INSTRUTION_STATE =1;
                 return ;
+            }else if((int)buffer[i]==(int)'#'){
+                ESTADO=5;
             }
             break;
         case 2:
             if((int)buffer[i]==(int)':'){
                 ESTADO=3;
+            }else if((int)buffer[i]==(int)'#'){
+                ESTADO=5;
             }else{
                 printf("Error se ha obtenido un caracter inesperado ");
                 printf("%c\n",buffer[i]);
@@ -173,7 +178,7 @@ void lexer(char buffer [] ){
                 ESTADO=0;
             }else if((int)buffer[i]==(int)'.'){
                 dato[pos_vector++]=buffer[i];
-            }else if((int)(buffer[i])==salto_linea){
+            }else if(((int)(buffer[i])==salto_linea||(int)buffer[i]==(int)'|')){
                 strcpy(objetos[pos_obj++].valor,dato);
                 pos_vector=0;
                 ESTADO=0;
@@ -182,21 +187,35 @@ void lexer(char buffer [] ){
                 flag=1;
                 pos_obj=0;
                 iniciar_obj();
-                if(INSTRUTION_STATE==1)
+                if(INSTRUTION_STATE==1){
+                    printf("ha ocurrido un error faltal, codigo de sálida 1, corrija los errores e intente de nuevo\n");
                     return;
+                }
+
+
             }else if((int)(buffer[i])==comilla){
                 ESTADO=4;
+            }else if((int)buffer[i]==(int)'#'){
+                ESTADO=5;
             }
             break;
 
         case 4:
-            if((int)(buffer[i])!=comilla){
+            if((int)(buffer[i])!=comilla&&(int)(buffer[i])!=salto_linea){
                 dato[pos_vector++]=buffer[i];
+            }else if((int)buffer[i]==(int)'#'){
+                ESTADO=5;
+            }else if((int)buffer[i]==salto_linea){
+                printf("ERRROR COMILLAS DESVALANCEADAS \N");
+                return;
             }else{
                 ESTADO=3;
             }
             break;
         case 5:
+            if((int)buffer[i]==(int)'\n'){
+                ESTADO=0;
+            }
 
             break;
         }
@@ -291,16 +310,75 @@ void crear_instruccion(obj ver[]){
             if(strcmp(objetos[i].clave,"mkdisk")==0){
                 crear_mkd(ver ,5);
                 break;
-            }
+            }else
             if(strcmp(objetos[i].clave,"rmdisk")==0){
                 crear_mrd(ver,2);
                 break;
-            }
+            }else
             if(strcmp(objetos[i].clave,"fdisk")==0){
-
+                crear_fd(ver,9);
+                break;
+            }else{
+                printf("Operacion no soportada, falta nombre de instruccion, mkdisk, rmdisk,fdisk\n");
+                break;
             }
+
         }
     }
+
+}
+
+void crear_fd(obj ver [], int tam){
+    int  i;
+    fd d = {};
+    ptrfd di = (ptrfd)malloc(sizeof(fd));
+    di=&d;
+    di->sise=-1;
+    strcpy(di->name,"vacio");
+    strcpy(di->path,"vacio");
+    int ft=0;
+    int ff=0;
+    for(i=0;i<tam-1;i++){
+        if(strcmp(ver[i].clave,"-path")==0){
+            set_path_fd(ver[i].valor,&di);
+        }
+        if(strcmp(ver[i].clave,"+unit")==0){
+            di->unit=ver[i].valor[0];
+        }
+        if(strcmp(ver[i].clave,"+type")==0){
+            di->type=ver[i].valor[0];
+            ft=1;
+        }
+        if(strcmp(ver[i].clave,"+delete")==0){
+            set_delete_fd(ver[i].valor,&di);
+        }
+        if(strcmp(ver[i].clave,"-name")==0){
+            set_name_fd(ver[i].valor,&di);
+        }
+        if(strcmp(ver[i].clave,"-size")==0){
+            set_size_fd(atoi(ver[i].valor),&di);
+        }
+        if(strcmp(ver[i].clave,"+fit")==0){
+            set_fit_fd(ver[i].valor,&di);
+            ff=1;
+        }
+        if(strcmp(ver[i].clave,"+add")==0){
+            set_add_fd(ver[i].valor,&di);
+        }
+    }
+    set_unit_fd(di->unit,&di);
+    if(strcmp(di->name,"vacio")==0||strcmp(di->path,"vacio")==0||di->sise==0){
+        printf("Muy pocos argumentos (name,path,size) son obligatorios en la instruccion fdisk\n");
+        INSTRUTION_STATE=1;
+
+    }
+    if(ft==0){
+        set_type_fd("a",&di);
+    }
+    if(ff==0){
+        set_fit_fd("a",&di);
+    }
+    insertar(&primero,di,&ultimo,"fd");
 
 }
 
@@ -318,9 +396,6 @@ void crear_mrd(obj ver[], int tam){
         printf("Muy pocos parametros para instruccion mrdisk (path) son obligatorios\n");
         return ;
     }
-
-    printf("Se ha eliminado el disco ");
-    printf("%s\n",di->path);
     insertar(&primero,di,&ultimo,"mr");
 
 }

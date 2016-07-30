@@ -14,6 +14,8 @@ void crearParticionNormal(char status, char type, char fit, int size, char *name
 int actualizarMBR(char * nombre_particion, char *path);
 int generar_random();
 void contarSlash(char path[]);
+
+
 int totalSlash=0;
 struct PARTICION{
         char estado;//esta activa o no
@@ -97,6 +99,7 @@ mbr leerMBR(char path[]){
     if(ptrfile!=NULL){
         fseek(ptrfile,0,SEEK_SET);
         fread(&c,sizeof(mbr),1,ptrfile);
+        fclose(ptrfile);
     }else{
       printf("an error has ocurred");
       printf("\n");
@@ -113,6 +116,20 @@ int generar_random(){
 }
 
 
+int existeParticion(char path [],char name []){
+    mbr aux = leerMBR(path);
+    if(strcmp(aux.part1.name,name)==0){
+        return 1;
+    }else if(strcmp(aux.part2.name,name)==0){
+        return 1;
+    }else if(strcmp(aux.part3.name,name)==0){
+        return 1;
+    }else if(strcmp(aux.part4.name,name)==0){
+        return 1;
+    }else{
+        return 0;
+    }
+}
 
 
 void impimeMBR(char*path){
@@ -124,11 +141,11 @@ void impimeMBR(char*path){
       fseek(ptrfile,0*sizeof(mbr),SEEK_SET);
       fread(&c,sizeof(mbr),1,ptrfile);
       printf("%-5d%-5d%-5s\n",c.tamano,c.random,c.fecha);
-      printf("%-10s%-10s%-10s%-10s%-10s%-10s\n","fit","estado","tipo","name","tamaño","inicia");
-      printf("%-10c%-10c%-10c%-10s%-10d%-10d\n",c.part1.fit,c.part1.estado,c.part1.tipo,c.part1.name,c.part1.size,c.part1.start);
-      printf("%-10c%-10c%-10c%-10s%-10d%-10d\n",c.part2.fit,c.part2.estado,c.part2.tipo,c.part2.name,c.part2.size,c.part2.start);
-      printf("%-10c%-10c%-10c%-10s%-10d%-10d\n",c.part3.fit,c.part3.estado,c.part3.tipo,c.part3.name,c.part3.size,c.part3.start);
-      printf("%-10c%-10c%-10c%-10s%-10d%-10d\n",c.part4.fit,c.part4.estado,c.part4.tipo,c.part4.name,c.part4.size,c.part4.start);
+      printf("%-15s%-15s%-15s%-15s%-15s%-15s\n","fit","estado","tipo","name","tamaño","inicia");
+      printf("%-15c%-15c%-15c%-15s%-15d%-15d\n",c.part1.fit,c.part1.estado,c.part1.tipo,c.part1.name,c.part1.size,c.part1.start);
+      printf("%-15c%-15c%-15c%-15s%-15d%-15d\n",c.part2.fit,c.part2.estado,c.part2.tipo,c.part2.name,c.part2.size,c.part2.start);
+      printf("%-15c%-15c%-15c%-15s%-15d%-15d\n",c.part3.fit,c.part3.estado,c.part3.tipo,c.part3.name,c.part3.size,c.part3.start);
+      printf("%-15c%-15c%-15c%-15s%-15d%-15d\n",c.part4.fit,c.part4.estado,c.part4.tipo,c.part4.name,c.part4.size,c.part4.start);
   }
 
   fclose(ptrfile);
@@ -165,6 +182,7 @@ if(strcmp(constante,nombre_particion)==0){
     strcpy(mbr_1.part1.name,"vacio");
     mbr_1.part1.start=0;
     mbr_1.part1.tipo='0';
+    mbr_1.part1.size=0;
     FILE * ptrfile;
     ptrfile = fopen(path,"rb+");
     if(ptrfile!=NULL){
@@ -179,6 +197,7 @@ if(strcmp(constante,nombre_particion)==0){
     strcpy(mbr_1.part2.name,"vacio");
     mbr_1.part2.start=0;
     mbr_1.part2.tipo='0';
+    mbr_1.part2.size=0;
     FILE * ptrfile;
     ptrfile = fopen(path,"rb+");
     if(ptrfile!=NULL){
@@ -191,9 +210,9 @@ if(strcmp(constante,nombre_particion)==0){
     mbr_1.part3.estado='0';
     mbr_1.part3.fit ='0';
     strcpy(mbr_1.part3.name,"vacio");
-
     mbr_1.part3.start=0;
     mbr_1.part3.tipo='0';
+    mbr_1.part3.size=0;
     FILE * ptrfile;
     ptrfile = fopen(path,"rb+");
     if(ptrfile!=NULL){
@@ -208,6 +227,7 @@ if(strcmp(constante,nombre_particion)==0){
     strcpy(mbr_1.part4.name,"vacio");
     mbr_1.part4.start=0;
     mbr_1.part4.tipo='0';
+    mbr_1.part4.size=0;
     FILE * ptrfile;
     ptrfile = fopen(path,"rb+");
     if(ptrfile!=NULL){
@@ -290,9 +310,16 @@ void crearParticionNormal(char status, char type, char fit  , int size,char * na
           //        printf("error, el nombre ya es usado por otra particion\n");//agregado x mi
           // }//agregado x mi
           }else{
-            printf("error, the size is bigger than the free space in the disc\n");
+            printf("ERROR EL TAMAÑO DE LA PARTICION A CREAR ES MENOR QUE EL ESPACIO LIBRE EN EL DISCO\n");
+            printf("EL ESPACIO LIBRE EN EL DISCO ES: ");
+            printf("%d",espacio_disponible);
+            printf(" Y EL TAMAÑO DE LA PARTICION HA CREAR ES DE: ");
+            printf("%d",size);
+
           }
 
+    }else{
+        printf("ERROR NO PUEDEN EXISTIR MAS DE UNA PARTICION EXTENDIDA EN EL MISMO DISCO\n");
     }
 
     fwrite(&m,sizeof(mbr),1,ptrfile);
@@ -392,6 +419,7 @@ int obtener_apuntador_asiguiente(char path []){
     if(ptrfile!=NULL){
         int next =0;
         seek_ebr=0;
+        obtener_numero_particiones(&cpp,&cpe,leerMBR(path));
         fijar_puntero_ebr(leerMBR(path),&seek_ebr,path);
         if(cpe!=0)
         while(next!=-1){
@@ -506,25 +534,29 @@ void escribe(char path [], int seek,ebr primera [],int t_pr){
 }
 
 ebr buscar_ebr(char path [],char name []){
-  ebr primera;
+  ebr primera={};
+  ebr segunda={};
+  strcpy(primera.name,"vacio");
+  strcpy(segunda.name,"vacio");
   FILE * ptrfile;
   ptrfile = fopen(path,"rb");
   if(ptrfile!=NULL){
       int next =0;
       seek_ebr=0;
       fijar_puntero_ebr(leerMBR(path),&seek_ebr,path);
+      if(seek_ebr!=0)
       while(next!=-1){
           fseek(ptrfile,seek_ebr,SEEK_SET);
           fread(&primera,sizeof(ebr),1,ptrfile);
           next = primera.next;
           seek_ebr=primera.start+primera.size+32;
           if(strcmp(primera.name,name)==0){
-              break;
+              return primera;
             }
         }
       fclose(ptrfile);
     }
-  return primera;
+  return segunda;
 }
 
 
@@ -553,14 +585,14 @@ void imprimir_ebr(char path []){
       int next =0;
       seek_ebr=0;
       fijar_puntero_ebr(leerMBR(path),&seek_ebr,path);
-      printf("%-10s%-10s%-10s%-10s%-10s%-10s\n","fit","nombre","siguiente","tamano","inicio","estatus");
+      printf("%-15s%-15s%-15s%-15s%-15s%-15s\n","fit","nombre","siguiente","tamano","inicio","estatus");
       if(seek_ebr!=0)
       while(next!=-1){
           fseek(ptrfile,seek_ebr,SEEK_SET);
           fread(&primera,sizeof(ebr),1,ptrfile);
           next = primera.next;
           seek_ebr=primera.start+primera.size+32;
-          printf("%-10c%-10s%-10d%-10d%-10d%-10c\n",primera.fit,primera.name,primera.next,primera.size,primera.start,primera.status);
+          printf("%-15c%-15s%-15d%-15d%-15d%-15c\n",primera.fit,primera.name,primera.next,primera.size,primera.start,primera.status);
         }
       fclose(ptrfile);
     }
@@ -641,7 +673,7 @@ void crearParticonEBR(char status, char fit, int start, int size, int next, char
               printf("El archivo no existe\n");
             }
         }else{
-          printf("No hay suficiente espacio para crear la particion\n");
+          printf("NO HAY ESPACIO SUFICIENTE PARA CREAR LA PARTICION LOGICA EN ESTA PARTCION EXTENDIDA\n");
         }
     }else{
       printf("Aun no ha sido creada una particion extendia\n");
@@ -654,24 +686,22 @@ void creaEBR(char path[], int start){
   mbr b=leerMBR(path);
   ebr primera;
   primera.fit='b';
-  strcpy(primera.name,"dani");
+  strcpy(primera.name,"vacio");
   primera.next=-1;
   primera.size=0;
   primera.start=start;
   primera.status='0';
-  FILE * ptrfile;
-
-  ptrfile = fopen(path,"rb+");
-  if(ptrfile!=NULL){
+  FILE * ptrfile1=(FILE*)malloc(sizeof(FILE));
+  ptrfile1 = fopen(path,"rb+");
+  if(ptrfile1!=NULL){
       //antes verificar si hay espacio disponible en la particion extendida para
       //insertar la logica
-      fseek(ptrfile,start,SEEK_SET);
-      fwrite(&primera,sizeof(ebr),1,ptrfile);
-      fclose(ptrfile);
+      fseek(ptrfile1,start,SEEK_SET);
+      fwrite(&primera,sizeof(ebr),1,ptrfile1);
+      fclose(ptrfile1);
     }
 
 }
-
 
 void contarSlash(char path[]){
     char*auxT=path;

@@ -4,15 +4,18 @@
 #include "estructuras.h"
 char*itoa(int i, char b[]);
 void eliminaDisco(ptrddisk di);
+void elimnarParticion();
 void ejecutar(){
-    ptrnodo aux = primero;
-    while(aux!=NULL){
-        if(strcmp(aux->tipo,"mk")==0){
-            creaDisco(aux->mk);
-        }else if(strcmp(aux->tipo,"mr")==0){
-            eliminaDisco(aux->mr);
+tam;
+    while(primero!=NULL){
+        if(strcmp(primero->tipo,"mk")==0){
+            creaDisco(primero->mk);
+        }else if(strcmp(primero->tipo,"mr")==0){
+            eliminaDisco(primero->mr);
+        }else if(strcmp(primero->tipo,"fd")==0){
+            crearParticion_primaria_extendida(primero->ffd);
         }
-        aux=aux->sig;
+        eliminar_instruccion();
     }
 
 }
@@ -55,6 +58,30 @@ void eliminaDisco(ptrddisk di){
         strcat(exe,di->path);
         system(exe);
     }
+}
+
+void crearParticion_primaria_extendida(ptrfd f){
+    if(strcmp(f->delet,"fast")==0||strcmp(f->delet,"full")==0){
+            ebr aux = buscar_ebr(f->path,f->name);
+            if(existeParticion(f->path,f->name)==1){
+                actualizarMBR(f->name,f->path);
+            }else if(strcmp(aux.name,"vacio")!=0){
+                eliminar_ebr(f->path,f->name);
+            }else{
+                printf("ERROR LA PARTICION ESPECIFICADA NO EXISTE");
+            }
+    }else if((int)f->type==(int)'l'){
+        crearParticonEBR('1',f->fit,obtener_apuntador_asiguiente(f->path),f->sise,-1,f->name,f->path);
+    }else if((int)f->type==(int)'p'||(int)f->type==(int)'e'){
+        crearParticionNormal('1',f->type,f->fit,f->sise,f->name,f->path);
+    }
+    impimeMBR(f->path);
+    imprimir_ebr(f->path);
+
+}
+
+void elimnarParticion(){
+
 }
 
 char* itoa(int i, char b[]){
