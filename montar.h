@@ -140,7 +140,7 @@ void Desmontar_particion(ptrmontar *cabeza, char name_particion [],char path [])
   int encontrado=-1;
   while((actual!=NULL)&&(encontrado!=0)){
       encontrado = strcmp(name_particion,actual->p.name);
-      if(encontrado==1||encontrado==-1){
+      if(encontrado!=0){
           anterior=actual;
           actual=actual->sig;
         }
@@ -224,6 +224,17 @@ int fijar_particion(char path [],ptrParticion p_montar,char name_partcion []){
             (*p_montar).start=m.part4.start;
             (*p_montar).tipo=m.part4.tipo;
             existe=1;
+        }else{
+            ebr aux = buscar_ebr(path,name_partcion);
+            if(strcmp(aux.name,"vacio")!=0){
+                (*p_montar).estado=aux.status;
+                (*p_montar).fit=aux.fit;
+                strcpy((*p_montar).name,aux.name);
+                (*p_montar).size=aux.size;
+                (*p_montar).start=aux.start;
+                (*p_montar).tipo='l';
+                existe=1;
+            }
         }
         fclose(ptrfile);
     }else{

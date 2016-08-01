@@ -3,6 +3,14 @@
 #include <strings.h>
 #include <string.h>
 
+
+struct cadena{
+   char representacion_cad [12];
+};
+typedef struct cadena strring;
+
+
+
 struct mkdisk {
 int sise;
 char unit;
@@ -25,6 +33,22 @@ struct fdisk{
     int  add;
 };
 
+struct mount{
+    char name[300];
+    char path[300];
+    int just_see;
+};
+
+struct unmount{
+    char name[300];
+    strring cadenas [50];
+    int hasta_donde;
+};
+
+typedef struct unmount um;
+typedef struct unmount *ptrum;
+typedef struct mount m;
+typedef struct mount *ptrm;
 typedef struct fdisk fd;
 typedef struct fdisk *ptrfd;
 typedef struct rmdisk ddisk;
@@ -163,5 +187,34 @@ void set_delete_fd(char delet [], fd ** disco){
 
 void set_add_fd(int add, fd ** disco){
     (*disco)->add=add;
+}
 
+
+void set_name_m(char name [], m**disco){
+    strcpy((*disco)->name,name);
+}
+
+void set_path_m(char path [], m**disco){
+    char exe [200]={};
+    if((int)path[0]==(int)'/'){
+        strcat(exe,"mike");
+    }else{
+        strcat(exe,"mike/");
+    }
+    strcat(exe,path);
+    strcpy((*disco)->path,exe);
+}
+
+void iniciar_codigos_um(um**disco){
+    int i;
+    for(i=0;i<50;i++){
+        strcpy((*disco)->cadenas[i].representacion_cad,"vacio");
+    }
+}
+
+int no_tiene_codigos_um(um**disco){
+    if(strcmp((*disco)->cadenas[1].representacion_cad,"vacio")==0){
+        return 1;
+    }
+    return 0;
 }

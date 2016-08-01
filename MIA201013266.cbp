@@ -32,12 +32,14 @@
 			<Add option="-Wall" />
 		</Compiler>
 		<Unit filename="Automata.h" />
+		<Unit filename="ejecutar.h" />
 		<Unit filename="estructuras.h" />
 		<Unit filename="instruccion.h" />
 		<Unit filename="instrucciones.h" />
 		<Unit filename="main.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="montar.h" />
 		<Extensions>
 			<code_completion />
 			<debugger />

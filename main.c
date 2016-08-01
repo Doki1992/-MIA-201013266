@@ -5,11 +5,11 @@ extern void lexer(char path []);
 
 int main()
 {
-    char buffer[2000];
-    leer(buffer,"/home/mike/hola.txt");
+    char buffer[20000];
+    leer(buffer,"/home/mike/build-mia1-Desktop_Qt_5_5_1_GCC_32bit-Debug/hola.txt");
     lexer(buffer);
     ejecutar();
     printf("%d\n",sizeof(mbr));
-    printf("%d",sizeof(ebr));
+    //printf("%d",sizeof(ebr));
     return 0;
 }

@@ -22,10 +22,12 @@ static char letras [] = {'a','b','c','d','e','f','g',
                   'P','M','Q','R','S','T','U'
                   ,'V','W','X','Y','Z'};
 
-static char * palabras [] = {"mkdisk","rmdisk","fdisk","mount","unmount","-size","exec",
+static char * palabras [] = {"mkdisk","rmdisk","fdisk","mount","umount","-size","exec",
                              "+unit","-path","-id","+type","+fit","+delete","-name","loss",
                              "+add","rep","mkfs","mkfile","cat","rem","edit","ren","-p",
-                             "mkdir","cp","mv","find","-cont","-p","-dest","-iddest","recovery"};
+                             "mkdir","cp","mv","find","-cont","-p","-dest","-iddest","recovery"
+                             ,"-id1","-id2","-id3","-id4","-id5","-id6","-id6","-id7","-id8","-id9","-id10","-id11"
+                            "-id12"};
 
 static int numeros [] = {'0','1','2','3','4','5','6','7','8','9'};
 static char simbolos []= {};
@@ -46,6 +48,8 @@ void iniciar_obj();
 void crear_mkd(obj ver [],int tam);
 void crear_mrd(obj ver[], int tam );
 void crear_fd(obj ver [],int tam);
+void crear_m(obj ver [],int tam);
+void crear_um(obj ver [],int tam);
 
 void lexer(char buffer [] ){
     int  i =0;
@@ -62,7 +66,7 @@ void lexer(char buffer [] ){
     while(i<tamano){
         switch(ESTADO){
         case 0:
-            if(((int)(buffer[i])==salto_linea||(int)buffer[i]==(int)'|')&&flag==0){
+            if(((int)(buffer[i])==salto_linea||(int)buffer[i]==(int)'|'||(int)buffer[i]==(int)'#')&&flag==0){
                 strcpy(objetos[pos_obj++].valor,dato);
                 pos_vector=0;
                 ESTADO=0;
@@ -75,6 +79,9 @@ void lexer(char buffer [] ){
                 flag=1;
                 pos_obj=0;
                 iniciar_obj();
+                if((int)buffer[i]==(int)'#'){
+                    ESTADO=5;
+                }
             }else if((int)(buffer[i])==espacio_blanco){
               ESTADO=0;
             }else if(Esletra(buffer[i])==1||Esnumero(buffer[i])){
@@ -178,7 +185,7 @@ void lexer(char buffer [] ){
                 ESTADO=0;
             }else if((int)buffer[i]==(int)'.'){
                 dato[pos_vector++]=buffer[i];
-            }else if(((int)(buffer[i])==salto_linea||(int)buffer[i]==(int)'|')){
+            }else if(((int)(buffer[i])==salto_linea||(int)buffer[i]==(int)'|'||(int)buffer[i]==(int)'#')){
                 strcpy(objetos[pos_obj++].valor,dato);
                 pos_vector=0;
                 ESTADO=0;
@@ -191,8 +198,9 @@ void lexer(char buffer [] ){
                     printf("ha ocurrido un error faltal, codigo de sálida 1, corrija los errores e intente de nuevo\n");
                     return;
                 }
-
-
+                if((int)buffer[i]==(int)'#'){
+                    ESTADO=5;
+                }
             }else if((int)(buffer[i])==comilla){
                 ESTADO=4;
             }else if((int)buffer[i]==(int)'#'){
@@ -278,7 +286,7 @@ void limpiar_vector(char v []){
 }
 
 static int Esreservada(char *palabra){
-  int tamano = 33;
+  int tamano = 45;
   int i =0;
   for(;i<tamano; i++){
       if(strcmp(palabra,palabras[i])==0){
@@ -318,7 +326,14 @@ void crear_instruccion(obj ver[]){
             if(strcmp(objetos[i].clave,"fdisk")==0){
                 crear_fd(ver,9);
                 break;
-            }else{
+            }else
+            if(strcmp(objetos[i].clave,"mount")==0){
+                crear_m(ver,3);
+                break;
+            }else if(strcmp(objetos[i].clave,"umount")==0){
+                crear_um(ver,15);
+            }
+            else if(i==14){
                 printf("Operacion no soportada, falta nombre de instruccion, mkdisk, rmdisk,fdisk\n");
                 break;
             }
@@ -326,6 +341,58 @@ void crear_instruccion(obj ver[]){
         }
     }
 
+}
+
+void crear_um(obj ver[], int tam){
+    int  i;
+    um desmontar = {};
+    strcpy(desmontar.name,"vacio");
+    um * di = (ptrum)malloc(sizeof(um));
+    int p;
+    di =&desmontar;
+    int count =0;
+    p =strstr(ver[1].clave,"id");
+    for(i=0;i<tam;i++){
+        if(strstr(ver[i].clave,"id")!=0){
+            char temp [12] ={};
+            strcpy(temp,ver[i].valor);
+            strcpy(di->cadenas[count++].representacion_cad,&temp[2]);
+        }
+    }
+    di->hasta_donde=count;
+    if(no_tiene_codigos_um(&di)==1){
+        printf("Muy pocos argumentos debe incluir al menos un codigo de particion para poder desmontar");
+        INSTRUTION_STATE=1;
+    }
+    insertar(&primero,di,&ultimo,"um");
+
+}
+
+void crear_m(obj ver[], int tam){
+    int  i;
+    m montar = {};
+    strcpy(montar.name,"vacio");
+    strcpy(montar.path,"vacio");
+    m * di = (ptrm)malloc(sizeof(m));
+    di=&montar;
+    di->just_see=0;
+    int flag =0;
+    for(i=0;i<tam;i++){
+        if(strcmp(ver[i].clave,"-name")==0){
+            set_name_m(ver[i].valor,&di);
+        }else if(strcmp(ver[i].clave,"-path")==0){
+            set_path_m(ver[i].valor,&di);
+        }
+
+    }
+    if((strcmp(di->name,"vacio")==0)&&(strcmp(di->path,"vacio")==0)){
+        di->just_see=flag;
+        flag=1;
+    }
+    if(((strcmp(di->name,"vacio")==0)||(strcmp(di->path,"vacio")==0))&&flag==0){
+        printf("Muy pocos argumentos (name,path) son obligatorios en la instruccion mount\n");
+    }
+    insertar(&primero,di,&ultimo,"m");
 }
 
 void crear_fd(obj ver [], int tam){
@@ -427,8 +494,6 @@ void crear_mkd(obj ver[], int tam){
         printf("Muy pocos parametros para instruccion mkdisk (name, path, size) son obligatorios\n");
         return ;
     }
-    printf("Se ha acreado el disco ");
-    printf("%s\n",di->name);
     insertar(&primero,di,&ultimo,"mk");
 }
 

@@ -419,6 +419,8 @@ int obtener_apuntador_asiguiente(char path []){
     if(ptrfile!=NULL){
         int next =0;
         seek_ebr=0;
+        cpe=0;
+        cpp=0;
         obtener_numero_particiones(&cpp,&cpe,leerMBR(path));
         fijar_puntero_ebr(leerMBR(path),&seek_ebr,path);
         if(cpe!=0)
@@ -442,7 +444,11 @@ int factor_de_cambio_EBR(char path []){
   if(ptrfile!=NULL){
       int next =0;
       seek_ebr=0;
+      cpp=0;
+      cpe=0;
+      obtener_numero_particiones(&cpp,&cpe,leerMBR(path));
       fijar_puntero_ebr(leerMBR(path),&seek_ebr,path);
+      if(cpe!=0)
       while(next!=-1){
           fseek(ptrfile,seek_ebr,SEEK_SET);
           fread(&primera,sizeof(ebr),1,ptrfile);
@@ -626,7 +632,11 @@ int obtenerTamanoLogicas(char path []){
   if(ptrfile!=NULL){
       int next =0;
       seek_ebr=0;
+      cpe=0;
+      cpp=0;
+      obtener_numero_particiones(&cpp,&cpe,leerMBR(path));
       fijar_puntero_ebr(leerMBR(path),&seek_ebr,path);
+      if(cpe!=0)
       while(next!=-1){
           fseek(ptrfile,seek_ebr,SEEK_SET);
           fread(&primera,sizeof(ebr),1,ptrfile);
@@ -643,7 +653,9 @@ int obtenerTamanoLogicas(char path []){
 
 void crearParticonEBR(char status, char fit, int start, int size, int next, char name [], char path[]){
   //existe particion extendida 1 no 0
-  int disponible = tamano_extendida-obtenerTamanoLogicas(path)-32*factor_de_cambio_EBR(path);
+  int tam_ex;
+  obtener_tamano_extendida(leerMBR(path),&tam_ex);
+  int disponible = tam_ex-obtenerTamanoLogicas(path)-32*factor_de_cambio_EBR(path);
   FILE * ptrfile;
   ptrfile= fopen(path,"rb+");
   cpp=cpe=0;
@@ -680,6 +692,7 @@ void crearParticonEBR(char status, char fit, int start, int size, int next, char
     }
 
 }
+
 
 
 void creaEBR(char path[], int start){
