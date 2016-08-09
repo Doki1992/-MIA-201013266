@@ -9,6 +9,7 @@ void montar_partcion(ptrm m);
 static ptrmontar cabeza=NULL;
 void iniciarMontarcabeza(ptrmontar * cabeza);
 void desmontar(ptrum disco);
+
 void ejecutar(){
 tam;
     while(primero!=NULL){
@@ -37,7 +38,14 @@ void desmontar(ptrum disco){
         char name [40];
         strcpy(path,obtener_path(cabeza,diss,numero));
         strcpy(name,obtener_nombre_particion(cabeza,diss,numero));
-        Desmontar_particion(&cabeza,name,path);
+        printf("desmontando partcion con nombre: ");
+        printf(name);
+        printf(".....\n");
+        if(strcmp(name,"xc")==0)
+            printf("Error en id solicitado no ha sido montado....\n");
+        else
+            Desmontar_particion(&cabeza,name,path);
+
     }
     ver_particiones_montadas(cabeza);
 }
@@ -84,33 +92,47 @@ void eliminaDisco(ptrddisk di){
 }
 
 void crearParticion_primaria_extendida(ptrfd f){
+
     if(strcmp(f->delet,"fast")==0||strcmp(f->delet,"full")==0){
             ebr aux = buscar_ebr(f->path,f->name);
             if(existeParticion(f->path,f->name)==1){
+                printf("Eliminando particion con nombre ");
+                printf(f->name);
+                printf("....\n");
                 actualizarMBR(f->name,f->path);
             }else if(strcmp(aux.name,"vacio")!=0){
+                printf("Eliminando particion con nombre ");
+                printf(f->name);
+                printf("....\n");
                 eliminar_ebr(f->path,f->name);
             }else{
-                printf("ERROR LA PARTICION ESPECIFICADA NO EXISTE");
+                printf("Error la particion que desea borrar no exist...\n");
             }
     }else if((int)f->type==(int)'l'){
+        printf("creando particion ");
+        printf("con nombre: ");
+        printf(f->name);
+        printf("......\n");
         crearParticonEBR('1',f->fit,obtener_apuntador_asiguiente(f->path),f->sise,-1,f->name,f->path);
     }else if((int)f->type==(int)'p'||(int)f->type==(int)'e'){
+        printf("creando particion ");
+        printf("con nombre: ");
+        printf(f->name);
+        printf("......\n");
         crearParticionNormal('1',f->type,f->fit,f->sise,f->name,f->path);
     }
-    impimeMBR(f->path);
-    imprimir_ebr(f->path);
-
 }
 
 void montar_partcion(ptrm m){
     if(m->just_see==0){
-        printf("Montando particion...\n");
+        printf("Montando particion con nombre: ");
+        printf(m->name);
+        printf(".....\n");
         Montar_disco(&cabeza,m->path,m->name);
-        ver_particiones_montadas(cabeza);
     }else{
-        ver_particiones_montadas(cabeza);
+
     }
+    ver_particiones_montadas(cabeza);
 }
 
 void elimnarParticion(){

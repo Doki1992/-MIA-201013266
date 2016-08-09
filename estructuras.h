@@ -182,7 +182,6 @@ if(strcmp(constante,nombre_particion)==0){
     strcpy(mbr_1.part1.name,"vacio");
     mbr_1.part1.start=0;
     mbr_1.part1.tipo='0';
-    mbr_1.part1.size=0;
     FILE * ptrfile;
     ptrfile = fopen(path,"rb+");
     if(ptrfile!=NULL){
@@ -197,7 +196,6 @@ if(strcmp(constante,nombre_particion)==0){
     strcpy(mbr_1.part2.name,"vacio");
     mbr_1.part2.start=0;
     mbr_1.part2.tipo='0';
-    mbr_1.part2.size=0;
     FILE * ptrfile;
     ptrfile = fopen(path,"rb+");
     if(ptrfile!=NULL){
@@ -212,7 +210,6 @@ if(strcmp(constante,nombre_particion)==0){
     strcpy(mbr_1.part3.name,"vacio");
     mbr_1.part3.start=0;
     mbr_1.part3.tipo='0';
-    mbr_1.part3.size=0;
     FILE * ptrfile;
     ptrfile = fopen(path,"rb+");
     if(ptrfile!=NULL){
@@ -227,7 +224,6 @@ if(strcmp(constante,nombre_particion)==0){
     strcpy(mbr_1.part4.name,"vacio");
     mbr_1.part4.start=0;
     mbr_1.part4.tipo='0';
-    mbr_1.part4.size=0;
     FILE * ptrfile;
     ptrfile = fopen(path,"rb+");
     if(ptrfile!=NULL){
@@ -304,7 +300,7 @@ void crearParticionNormal(char status, char type, char fit  , int size,char * na
                     obtener_tamano_extendida(m,&tamano_extendida);
                   }
               }else{
-                printf("error, the size is bigger than the free space in the disc\n");
+                printf("Error la particion no puede ser creada por que no hay espacio disponible para hacerlo \n");
               }
         //  }else{//agregado x mi
           //        printf("error, el nombre ya es usado por otra particion\n");//agregado x mi

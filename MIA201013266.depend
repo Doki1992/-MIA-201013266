@@ -19,17 +19,17 @@
 1469897380 /home/mike/MIA201013266/instrucciones.h
 	"instruccion.h"
 
-1469899773 /home/mike/MIA201013266/estructuras.h
+1470283580 /home/mike/MIA201013266/estructuras.h
 	<stdio.h>
 	<stdlib.h>
 	<string.h>
 	<time.h>
 	<strings.h>
 
-1469898100 /home/mike/MIA201013266/ejecutar.h
+1470285248 /home/mike/MIA201013266/ejecutar.h
 	"Automata.h"
 	"montar.h"
 
-1469898002 /home/mike/MIA201013266/montar.h
+1470286940 /home/mike/MIA201013266/montar.h
 	"estructuras.h"
 

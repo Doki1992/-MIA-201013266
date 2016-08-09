@@ -12,7 +12,7 @@ struct Montar{
 struct datos{
   int cuenta;
   char * path;
-  char * name_part[4];
+  char * name_part[51];
 };
 
 
@@ -35,7 +35,7 @@ static char * discos [51];
  dato  d[51]={};
 static int discos_iniciados =0;
 static int particiones_iniciadas=0;
-
+int ya_esta_montada(char name[]);
 
 void iniciarDiscos(){
   discos_iniciados=1;
@@ -50,11 +50,31 @@ void iniciarPartiones(){
   int i ;
   int j;
   for(i=0;i<51;i++){
-      for(j=0;j<4;j++){
+      for(j=0;j<51;j++){
           d[i].name_part[j]="vacio";
         }
     }
   particiones_iniciadas=1;
+}
+
+int ya_esta_montada(char name []){
+    int si=0;
+    int i ;
+    int j;
+    for(i=0; i<51;i++){
+        for (j = 0;  i< 51; i++) {
+            char bueno [20];
+            strcpy(bueno,d[i].name_part[j]);
+            if(strcmp(d[i].name_part[j],name)==0){
+                printf("La particon con nombre: ");
+                printf(name);
+                printf(" ya esta montada\n");
+                si=1;
+                break;
+            }
+        }
+    }
+    return si;
 }
 
 void asignarDisco(char path [],int *pos){
@@ -88,7 +108,7 @@ int obtener_pos_part(char name [],char path []){
   int encontrado=0;
   for(i=0;i<51;i++){
       if(strcmp(path,d[i].path)==0)
-      for(j=0;j<4;j++){
+      for(j=0;j<51;j++){
           if(strcmp(d[i].name_part[j],name)==0){
               encontrado=1;
               pos=j;
@@ -105,7 +125,7 @@ int obtener_pos_part(char name [],char path []){
 void asignarId(char path [],int *pos,char name_part[]){
     int i =0;
     int pd = obtener_pos_disco(path);
-    for(;i<4;i++){
+    for(;i<51;i++){
         if(strcmp(d[pd].name_part[i],"vacio")==0){
             (*pos)=i;
             d[pd].name_part[i]=&name_part[0];
@@ -122,11 +142,13 @@ void Montar_disco(ptrmontar * cabeza,char path [],char name_particion []){
         iniciarPartiones();
       }
     if(nuevo!=NULL){
-       int existe = iniciarNuevo(path,&nuevo,name_particion);
-       if(existe==1){
-           nuevo->sig=(*cabeza);
-          (*cabeza)=nuevo;
-         }
+       if(ya_esta_montada(name_particion)==0){
+           int existe = iniciarNuevo(path,&nuevo,name_particion);
+           if(existe==1){
+               nuevo->sig=(*cabeza);
+              (*cabeza)=nuevo;
+             }
+       }
     }
 }
 
@@ -266,7 +288,7 @@ char * obtener_nombre_particion(ptrmontar cabeza,char disco,int particion){
       aux = aux->sig;
     }
   if(band==0){
-      printf("no existe la particion buscada\n\n");
+
   }
   return aux1;
 }
