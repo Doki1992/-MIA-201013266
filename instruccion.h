@@ -9,42 +9,54 @@ struct cadena{
 };
 typedef struct cadena strring;
 
-
+struct Exec{
+    char path[400];
+};
 
 struct mkdisk {
 int sise;
 char unit;
-char path [200];
-char name [200];
+char path [400];
+char name [400];
 };
 
 struct rmdisk{
-   char path [200];
+   char path [400];
 };
 
 struct fdisk{
     int sise;
     char unit;
-    char path[300];
+    char path[400];
     char type;
     char fit;
-    char delet[300];
-    char name [300];
+    char delet[400];
+    char name [400];
     int  add;
 };
 
 struct mount{
-    char name[300];
-    char path[300];
+    char name[400];
+    char path[400];
     int just_see;
 };
 
 struct unmount{
-    char name[300];
+    char name[400];
     strring cadenas [50];
     int hasta_donde;
 };
 
+struct rep{
+ char name[400];
+ char path[400];
+ char disco;
+ int particion;
+ char ruta[0];
+};
+typedef struct Exec ex;
+typedef struct rep reporte;
+typedef struct rep * ptreporte;
 typedef struct unmount um;
 typedef struct unmount *ptrum;
 typedef struct mount m;
@@ -86,7 +98,7 @@ void set_unit(char unit, disk ** disco){
 }
 
 void set_path(char path[], disk ** disco){
-    char exe [400] ={};
+    char exe [600] ={};
     if((int)path[0]==(int)'/'){
         strcat(exe,"mike");
     }else{
@@ -102,7 +114,7 @@ void set_name(char name[],disk ** disco){
 }
 
 void set_path_delete_disk(char path[], ddisk ** disco){
-    char  exe [200] = {};
+    char  exe [600] = {};
     if((int)path[0]==(int)'/'){
         strcat(exe,"mike");
     }else{
@@ -127,7 +139,7 @@ void set_name_fd(char name [], fd ** disco){
 }
 
 void set_path_fd(char path[], fd** disco){
-    char exe [200]={};
+    char exe [600]={};
     if((int)path[0]==(int)'/'){
         strcat(exe,"mike");
     }else{
@@ -195,7 +207,7 @@ void set_name_m(char name [], m**disco){
 }
 
 void set_path_m(char path [], m**disco){
-    char exe [200]={};
+    char exe [600]={};
     if((int)path[0]==(int)'/'){
         strcat(exe,"mike");
     }else{
@@ -217,4 +229,34 @@ int no_tiene_codigos_um(um**disco){
         return 1;
     }
     return 0;
+}
+
+void set_name_rep(reporte **r,char name []){
+   strcpy((*r)->name,name);
+}
+
+void set_path_rep(reporte **r,char path []){
+    char exec [600]={};
+    if((int)path[0]==(int)'/'){
+      strcat(exec,"mike");
+    }else{
+      strcat(exec,"mike");
+    }
+    strcat(exec,path);
+
+    strcpy((*r)->path,exec);
+}
+
+void set_id_rep(reporte **r,char disco,char particion){
+    (*r)->disco =disco;
+    (*r)->particion =(int)particion-48;
+}
+
+void set_ruta_rep(reporte **r,char ruta []){
+    strcpy((*r)->ruta,ruta);
+}
+
+
+void set_path_exec(ex ** disco, char path []){
+    strcpy((*disco)->path,path);
 }

@@ -5,8 +5,8 @@
 
 
 struct objeto{
-    char clave [300];
-    char valor[300];
+    char clave [400];
+    char valor[400];
 };
 
 typedef struct objeto obj;
@@ -22,7 +22,7 @@ static char letras [] = {'a','b','c','d','e','f','g',
                   'P','M','Q','R','S','T','U'
                   ,'V','W','X','Y','Z'};
 
-static char * palabras [] = {"mkdisk","rmdisk","fdisk","mount","umount","-size","exec",
+static char * palabras [] = {"mkdisk","rmdisk","fdisk","mount","umount","-size","exec","rep",
                              "+unit","-path","-id","+type","+fit","+delete","-name","loss",
                              "+add","rep","mkfs","mkfile","cat","rem","edit","ren","-p",
                              "mkdir","cp","mv","find","-cont","-p","-dest","-iddest","recovery"
@@ -42,6 +42,7 @@ static int Esreservada(char * palabra);
 static int Esnumero(char numero);
 static void minusculas(char *s);
 void lexer(char buffer []);
+void lexer1(char buffer []);
 void leer(char buffer[], char *path);
 void crear_instruccion(obj ver[]);
 void iniciar_obj();
@@ -50,6 +51,8 @@ void crear_mrd(obj ver[], int tam );
 void crear_fd(obj ver [],int tam);
 void crear_m(obj ver [],int tam);
 void crear_um(obj ver [],int tam);
+void crear_rep(obj ver [],int tam);
+void crear_exec(obj ver [],int tam);
 
 void lexer(char buffer [] ){
     int  i =0;
@@ -97,8 +100,8 @@ void lexer(char buffer [] ){
             }else if((int)buffer[i]==(int)'-'||(int)buffer[i]==(int)'+'){
                 dato[pos_vector++]=buffer[i];
                 ESTADO=1;
-            }else if((int)buffer[i]==(int)'|'){
-
+            }else if((int)buffer[i]==(int)'\\'){
+               ESTADO=6;
             }
             break;
         case 1:
@@ -152,10 +155,13 @@ void lexer(char buffer [] ){
                   }
             }else if((int)(buffer[i])==salto_linea){
                 printf("Error muy pocos argumentos\n");
-                INSTRUTION_STATE =1;
-                return ;
+                //INSTRUTION_STATE =1;
+               // return ;
+                ESTADO=0;
             }else if((int)buffer[i]==(int)'#'){
                 ESTADO=5;
+            }else if((int)buffer[i]==(int)'\\'){
+                ESTADO=6;
             }
             break;
         case 2:
@@ -163,6 +169,8 @@ void lexer(char buffer [] ){
                 ESTADO=3;
             }else if((int)buffer[i]==(int)'#'){
                 ESTADO=5;
+            }else if((int)buffer[i]==(int)'\\'){
+                ESTADO=6;
             }else{
                 printf("Error se ha obtenido un caracter inesperado ");
                 printf("%c\n",buffer[i]);
@@ -202,9 +210,12 @@ void lexer(char buffer [] ){
                     ESTADO=5;
                 }
             }else if((int)(buffer[i])==comilla){
+
                 ESTADO=4;
             }else if((int)buffer[i]==(int)'#'){
                 ESTADO=5;
+            }else if((int)buffer[i]==(int)'\\'){
+                ESTADO=6;
             }
             break;
 
@@ -216,6 +227,8 @@ void lexer(char buffer [] ){
             }else if((int)buffer[i]==salto_linea){
                 printf("ERRROR COMILLAS DESVALANCEADAS \N");
                 return;
+            }else if((int)buffer[i]==(int)'\\'){
+                ESTADO=6;
             }else{
                 ESTADO=3;
             }
@@ -223,8 +236,219 @@ void lexer(char buffer [] ){
         case 5:
             if((int)buffer[i]==(int)'\n'){
                 ESTADO=0;
+            }else if((int)buffer[i]==(int)'\\'){
+                ESTADO=6;
             }
 
+            break;
+        case 6:
+            if((int)buffer[i]!=(int)'\n'){
+                ESTADO =6;
+            }else{
+                dato[pos_vector]=buffer[i];
+                ESTADO=0;
+            }
+            break;
+        }
+        i++;
+    }
+
+}
+
+void lexer1(char buffer [] ){
+    int  i =0;
+    minusculas(&buffer[0]);
+    strcat(buffer,"|");
+    iniciar_obj();
+    int tamano = strlen(&buffer[0]);
+    char dato [100]={};
+    int pos_vector =0;
+    int pos_obj=0;
+    ESTADO=0;
+    int flag =0;
+    crearlista();
+    while(i<tamano){
+        switch(ESTADO){
+        case 0:
+            if(((int)(buffer[i])==salto_linea||(int)buffer[i]==(int)'|'||(int)buffer[i]==(int)'#')&&flag==0){
+                strcpy(objetos[pos_obj++].valor,dato);
+                pos_vector=0;
+                ESTADO=0;
+                limpiar_vector(dato);
+                crear_instruccion(objetos);
+                if(INSTRUTION_STATE==1){
+                    printf("ha ocurrido un error faltal, codigo de sálida 1, corrija los errores e intente de nuevo\n");
+                    return;
+                }
+                flag=1;
+                pos_obj=0;
+                iniciar_obj();
+                if((int)buffer[i]==(int)'#'){
+                    ESTADO=5;
+                }
+            }else if((int)(buffer[i])==espacio_blanco){
+              ESTADO=0;
+            }else if(Esletra(buffer[i])==1||Esnumero(buffer[i])){
+                dato[pos_vector++]=buffer[i];
+                ESTADO=1;
+            }else if((int)buffer[i]==comentario){
+                ESTADO=5;
+            }else if((int)buffer[i]==(int)'/'){
+                ESTADO=0;
+            }else if((int)buffer[i]==(int)'.'){
+                dato[pos_vector++]=buffer[i];
+                ESTADO=1;
+            }else if((int)buffer[i]==(int)'-'||(int)buffer[i]==(int)'+'){
+                dato[pos_vector++]=buffer[i];
+                ESTADO=1;
+            }else if((int)buffer[i]==(int)'\\'){
+               ESTADO=6;
+            }
+            break;
+        case 1:
+            if((int)(buffer[i])==espacio_blanco){
+
+                if(Esreservada(&dato[0])==1 )
+                  {
+                    strcpy(objetos[pos_obj++].clave,dato);
+                    pos_vector=0;
+                    ESTADO=0;
+                    limpiar_vector(dato);
+                    flag=0;
+                  }else{
+                    printf("Error ");
+                    printf("%s",dato);
+                    printf(" no es un comando ");
+                    printf("Escriba help para ver una lista de comandos.\n");
+                    pos_vector=0;
+                    ESTADO=0;
+                    limpiar_vector(dato);
+                    INSTRUTION_STATE=1;
+                    return;
+                  }
+
+            }else if(Esletra((buffer[i]))==1||Esnumero(buffer[i])==1){
+                dato[pos_vector++]=buffer[i];
+            }else if((int)buffer[i]==(int)'\\'){
+                //dato[pos_vector++]=buffer[i];
+                pos_vector=0;
+                ESTADO=0;
+            }else if((int)buffer[i]==(int)'.'){
+                dato[pos_vector++]=buffer[i];
+            }else if((int)buffer[i]==(int)':'){
+                if(Esreservada(&dato[0])==1)
+                  {
+                    strcpy(objetos[pos_obj].clave,dato);
+                    pos_vector=0;
+                    ESTADO=0;
+                    limpiar_vector(dato);
+                    ESTADO=2;
+                  }else{
+                    printf("Error ");
+                    printf("%s",dato);
+                    printf(" no es un comando ");
+                    printf("Escriba help para ver una lista de comandos.\n");
+                    pos_vector=0;
+                    ESTADO=2;
+                    limpiar_vector(dato);
+                    INSTRUTION_STATE=1;
+                    return;
+                  }
+            }else if((int)(buffer[i])==salto_linea){
+                printf("Error muy pocos argumentos\n");
+               // INSTRUTION_STATE =1;
+               // return ;
+                ESTADO=0;
+            }else if((int)buffer[i]==(int)'#'){
+                ESTADO=5;
+            }else if((int)buffer[i]==(int)'\\'){
+                ESTADO=6;
+            }
+            break;
+        case 2:
+            if((int)buffer[i]==(int)':'){
+                ESTADO=3;
+            }else if((int)buffer[i]==(int)'#'){
+                ESTADO=5;
+            }else if((int)buffer[i]==(int)'\\'){
+                ESTADO=6;
+            }else{
+                printf("Error se ha obtenido un caracter inesperado ");
+                printf("%c\n",buffer[i]);
+                INSTRUTION_STATE=1;
+                return;
+            }
+            break;
+        case 3:
+            if((int)(buffer[i])==espacio_blanco){
+                    strcpy(objetos[pos_obj++].valor,dato);
+                    pos_vector=0;
+                    ESTADO=0;
+                    limpiar_vector(dato);
+                    flag=0;
+            }else if(Esletra((buffer[i]))==1||Esnumero(buffer[i])==1){
+                dato[pos_vector++]=buffer[i];
+            }else if((int)buffer[i]==(int)'\\'){
+                //dato[pos_vector++]=buffer[i];
+                pos_vector=0;
+                ESTADO=0;
+            }else if((int)buffer[i]==(int)'.'){
+                dato[pos_vector++]=buffer[i];
+            }else if(((int)(buffer[i])==salto_linea||(int)buffer[i]==(int)'|'||(int)buffer[i]==(int)'#')){
+                strcpy(objetos[pos_obj++].valor,dato);
+                pos_vector=0;
+                ESTADO=0;
+                limpiar_vector(dato);
+                crear_instruccion(objetos);
+                flag=1;
+                pos_obj=0;
+                iniciar_obj();
+                if(INSTRUTION_STATE==1){
+                    printf("ha ocurrido un error faltal, codigo de sálida 1, corrija los errores e intente de nuevo\n");
+                    return;
+                }
+                if((int)buffer[i]==(int)'#'){
+                    ESTADO=5;
+                }
+            }else if((int)(buffer[i])==comilla){
+
+                ESTADO=4;
+            }else if((int)buffer[i]==(int)'#'){
+                ESTADO=5;
+            }else if((int)buffer[i]==(int)'\\'){
+                ESTADO=6;
+            }
+            break;
+
+        case 4:
+            if((int)(buffer[i])!=comilla&&(int)(buffer[i])!=salto_linea){
+                dato[pos_vector++]=buffer[i];
+            }else if((int)buffer[i]==(int)'#'){
+                ESTADO=5;
+            }else if((int)buffer[i]==salto_linea){
+                printf("ERRROR COMILLAS DESVALANCEADAS \N");
+                return;
+            }else if((int)buffer[i]==(int)'\\'){
+                ESTADO=6;
+            }else{
+                ESTADO=3;
+            }
+            break;
+        case 5:
+            if((int)buffer[i]==(int)'\n'){
+                ESTADO=0;
+            }else if((int)buffer[i]==(int)'\\'){
+                ESTADO=6;
+            }
+
+            break;
+        case 6:
+            if((int)buffer[i]!=(int)'\n'){
+                ESTADO =6;
+            }else{
+                dato[pos_vector]=buffer[i];
+                ESTADO=0;
+            }
             break;
         }
         i++;
@@ -298,13 +522,13 @@ static int Esreservada(char *palabra){
 
 void leer(char buffer[],char *path){
     FILE *ptrCf;
-    char hola[10000];
+    char hola[60000];
     if ( ( ptrCf = fopen(path, "r" ) ) == NULL ) {
     printf( "No pudo abrirse el archivo.\n");
     }
     else {
     while (!feof(ptrCf)) {
-    fgets(hola,10000,ptrCf);
+    fgets(hola,60000,ptrCf);
     strcat(buffer,hola);
     }
     fclose( ptrCf ); /* fclose cierra el archivo */
@@ -332,6 +556,11 @@ void crear_instruccion(obj ver[]){
                 break;
             }else if(strcmp(objetos[i].clave,"umount")==0){
                 crear_um(ver,15);
+                break;
+            }else if(strcmp(objetos[i].clave,"rep")==0){
+                crear_rep(ver,4);
+            }else if((strcmp(objetos[i].clave,"exec")==0)){
+                crear_exec(ver,2);
             }
             else if(i==14){
                 printf("Operacion no soportada, falta nombre de instruccion, mkdisk, rmdisk,fdisk\n");
@@ -341,6 +570,54 @@ void crear_instruccion(obj ver[]){
         }
     }
 
+}
+
+void crear_exec(obj ver[], int tam){
+    int  i;
+    ex r = {};
+    strcpy(r.path,"vacio");
+    ex *d = &r;
+    for(i=0;i<tam;i++){
+        if(strstr(ver[i].clave,"-path")!=0){
+            set_path_exec(&d,ver[i].valor);
+        }
+    }
+    if(strcmp(d->path,"vacio")==0){
+        printf("error el atributo path es obligatorio .....\n");
+       INSTRUTION_STATE=1;
+       return ;
+    }
+    insertar(&primero,d,&ultimo,"ex");
+
+
+}
+
+void crear_rep(obj ver[], int tam){
+    int  i;
+    reporte r = {};
+    strcpy(r.name,"vacio");
+    strcpy(r.path,"vacio");
+    r.disco='x';
+    r.particion=.1;
+    ptreporte d = &r;
+    for(i=0;i<tam;i++){
+        if(strstr(ver[i].clave,"-id")!=0){
+            set_id_rep(&d,ver[i].valor[2],ver[i].valor[3]);
+        }else if(strcmp(ver[i].clave,"-name")==0){
+            set_name_rep(&d,ver[i].valor);
+        }else if(strcmp(ver[i].clave,"-path")==0){
+            set_path_rep(&d,ver[i].valor);
+        }else if(strcmp(ver[i].clave,"+ruta")==0){
+            set_ruta_rep(&d,ver[i].valor);
+        }
+    }
+
+    if(strcmp(d->name,"vacio")==0||strcmp(d->path,"vacio")==0||(int)r.disco==(int)'x'||r.particion==-1){
+        INSTRUTION_STATE=1;
+        printf("Muy pocos argumentos (name,id,path) son obligatorios \n");
+        return ;
+    }
+    insertar(&primero,d,&ultimo,"r");
 }
 
 void crear_um(obj ver[], int tam){

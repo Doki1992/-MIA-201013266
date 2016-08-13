@@ -142,12 +142,12 @@ void Montar_disco(ptrmontar * cabeza,char path [],char name_particion []){
         iniciarPartiones();
       }
     if(nuevo!=NULL){
-       if(ya_esta_montada(name_particion)==0){
+
            int existe = iniciarNuevo(path,&nuevo,name_particion);
            if(existe==1){
                nuevo->sig=(*cabeza);
               (*cabeza)=nuevo;
-             }
+
        }
     }
 }
@@ -277,11 +277,12 @@ void ver_particiones_montadas(ptrmontar cabeza){
 char * obtener_nombre_particion(ptrmontar cabeza,char disco,int particion){
   ptrmontar aux =cabeza;
   d;
-  char * aux1="xc";
+  char  aux1 [400]={};
+  strcpy(aux1,"xc");
   int band=0;
   while(aux!=NULL){
       if(((int)aux->Disco==(int)disco)&&(aux->part==particion)){
-          aux1=aux->p.name;
+          strcpy(aux1,aux->p.name);
           band=1;
           break;
         }
@@ -294,22 +295,23 @@ char * obtener_nombre_particion(ptrmontar cabeza,char disco,int particion){
 }
 
 char *obtener_path(ptrmontar cabeza,char disco, int particion){
-  char  aux1 [100]="";
-  char  *aux2=calloc(30,sizeof(char));
+  char  aux1 [700]={};
+  char  aux2 [700]={};
   int encontrado =0;
   strcpy(aux1,obtener_nombre_particion(cabeza,disco,particion));
   if(discos_iniciados==1&&particiones_iniciadas==1){
       int i,j;
 
       for(i=0;i<51;i++){
-
+          if(letrasID[i]==disco){
           for(j=0;j<4;j++){
              if(strcmp(d[i].name_part[j],aux1)==0) {
                 encontrado=1;
-                aux2=d[i].path;
+                strcpy(aux2,d[i].path);
                 break;
                }
             }
+          }
           if(encontrado==1){
             break;
           }else{

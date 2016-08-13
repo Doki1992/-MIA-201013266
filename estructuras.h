@@ -13,7 +13,7 @@ void crearMBR(int size_disco, char *path);
 void crearParticionNormal(char status, char type, char fit, int size, char *name, char *path);
 int actualizarMBR(char * nombre_particion, char *path);
 int generar_random();
-void contarSlash(char path[]);
+int contarSlash(char path[]);
 
 
 int totalSlash=0;
@@ -101,7 +101,7 @@ mbr leerMBR(char path[]){
         fread(&c,sizeof(mbr),1,ptrfile);
         fclose(ptrfile);
     }else{
-      printf("an error has ocurred");
+      printf("no se puede abrir el achivo leermbr()");
       printf("\n");
       printf("\n");
       return c;
@@ -315,13 +315,15 @@ void crearParticionNormal(char status, char type, char fit  , int size,char * na
           }
 
     }else{
-        printf("ERROR NO PUEDEN EXISTIR MAS DE UNA PARTICION EXTENDIDA EN EL MISMO DISCO\n");
+        printf("ERROR SOLO PUEDEN EXISTIR 4 PARTICIONES PRIMARIAS O 3 PRIMARIAS Y EXTENDIDA \n");
     }
 
     fwrite(&m,sizeof(mbr),1,ptrfile);
     fclose(ptrfile);
     }else{
-         printf("no hay disco con esa direcicon y nombre\n\n");
+         printf("no hay disco con esa direcicon y nombre: \n");
+         printf(path);
+         printf("......\n");
     }
 }
 
@@ -712,7 +714,7 @@ void creaEBR(char path[], int start){
 
 }
 
-void contarSlash(char path[]){
+int contarSlash(char path[]){
     char*auxT=path;
     char slash='/';
     totalSlash=0;
@@ -722,7 +724,7 @@ void contarSlash(char path[]){
         }
         auxT++;
     }
-
+  return totalSlash;
 }
 int existe_punto(char palabra[]){
     char*auxT=palabra;

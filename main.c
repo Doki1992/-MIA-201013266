@@ -5,11 +5,22 @@ extern void lexer(char path []);
 
 int main()
 {
-    char buffer[20000];
-    leer(buffer,"/home/mike/build-mia1-Desktop_Qt_5_5_1_GCC_32bit-Debug/hola.txt");
-    lexer(buffer);
-    ejecutar();
-    printf("%d\n",sizeof(mbr));
-    //printf("%d",sizeof(ebr));
+    char cadena [12]={};
+
+    crearlista();
+    do {
+
+        char comando [100]={};
+        char buffer[20000]={};
+        ejecutar();
+        printf(".....Escriba un comando por favor.....\n");
+        fgets(comando,100,stdin);
+        lexer(comando);
+        ejecutar();
+        printf("para para escriba no.. \n");
+
+    } while (strcmp(cadena,"no\n")!=0);
+
+
     return 0;
 }

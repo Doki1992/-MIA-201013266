@@ -1,35 +1,35 @@
 # depslib dependency file v1.0
-1469945385 source:/home/mike/MIA201013266/main.c
+1471066779 source:/home/mike/MIA201013266/main.c
 	<stdio.h>
 	<stdlib.h>
 	"ejecutar.h"
 
-1469894720 /home/mike/MIA201013266/Automata.h
+1471065239 /home/mike/MIA201013266/ejecutar.h
+	"Automata.h"
+	"montar.h"
+
+1471065676 /home/mike/MIA201013266/Automata.h
 	<stdlib.h>
 	<stdio.h>
 	<string.h>
 	"instrucciones.h"
 
-1469894245 /home/mike/MIA201013266/instruccion.h
+1471054208 /home/mike/MIA201013266/instrucciones.h
+	"instruccion.h"
+
+1471059855 /home/mike/MIA201013266/instruccion.h
 	<stdio.h>
 	<stdlib.h>
 	<strings.h>
 	<string.h>
 
-1469897380 /home/mike/MIA201013266/instrucciones.h
-	"instruccion.h"
+1471062824 /home/mike/MIA201013266/montar.h
+	"estructuras.h"
 
-1470283580 /home/mike/MIA201013266/estructuras.h
+1471046133 /home/mike/MIA201013266/estructuras.h
 	<stdio.h>
 	<stdlib.h>
 	<string.h>
 	<time.h>
 	<strings.h>
-
-1470285248 /home/mike/MIA201013266/ejecutar.h
-	"Automata.h"
-	"montar.h"
-
-1470286940 /home/mike/MIA201013266/montar.h
-	"estructuras.h"
 

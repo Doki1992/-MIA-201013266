@@ -8,6 +8,8 @@ struct Nodo{
     fd * ffd;
     m*mou;
     um *umo;
+    reporte *rr;
+    ex *ee;
     struct Nodo * sig;
 };
 
@@ -24,6 +26,8 @@ void iniciar(ptrnodo * This,void *generico, char * tipo);
 void iniciar_fd(ptrnodo*This,fd *ffd);
 void iniciar_m(ptrnodo * This, m*mou);
 void iniciar_um(ptrnodo * This, um*umo);
+void iniciar_rep(ptrnodo * This, reporte*rr);
+void iniciar_ex(ptrnodo * This, ex *ee);
 
 void crearlista(){
     primero = NULL;
@@ -74,11 +78,22 @@ void iniciar(ptrnodo *This, void *generico, char * tipo){
     }else if(strcmp(tipo,"um")==0){
         um * umo=(um*)generico;
         iniciar_um(This,umo);
+    }else if(strcmp(tipo,"r")==0){
+        reporte *rr = (reporte*)generico;
+        iniciar_rep(This,rr);
+    }else if(strcmp(tipo,"ex")==0){
+        ex * ee = (ex *)generico;
+        iniciar_ex(This,ee);
     }else{
         printf("Error instruccion no soportada instrucciones.h");
         printf(" linea 63");
         INSTRUTION_STATE=1;
     }
+}
+
+void iniciar_ex(ptrnodo *This, ex *ee){
+    (*This)->ee=(ex *)malloc(sizeof(ex));
+    strcpy((*This)->ee->path,ee->path);
 }
 
 void iniciar_mr(ptrnodo* This,ddisk *mr){
@@ -119,6 +134,15 @@ void iniciar_um(ptrnodo *This, um *umo){
     for(i=0;i<umo->hasta_donde;i++){
         strcpy((*This)->umo->cadenas[i].representacion_cad,umo->cadenas[i].representacion_cad);
     }
+}
+
+void iniciar_rep(ptrnodo *This, reporte *rr){
+   (*This)->rr = (reporte*)malloc(sizeof(reporte));
+   (*This)->rr->disco=rr->disco;
+   (*This)->rr->particion=rr->particion;
+   strcpy((*This)->rr->name,rr->name);
+   strcpy((*This)->rr->path,rr->path);
+   strcpy((*This)->rr->ruta,rr->ruta);
 }
 
 
